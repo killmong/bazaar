@@ -1,0 +1,72 @@
+.wrapper {
+  width: 90%;
+  margin: 20px auto;
+}
+ul li {
+  font-size: 18px;
+  color: rgb(0, 0, 0);
+}
+
+ul {
+  display: flex;
+  gap: 40px;
+}
+
+.btn {
+  padding: 6px 12px;
+  font-size: 16px;
+  text-align: center;
+  align-items: center;
+  border-radius: 10px;
+  color: white;
+  font-weight: 400;
+}
+
+.btn-primary {
+  background-color: #000;
+}
+
+.pd-1 {
+  padding: 10px 20px;
+}
+
+.links {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.links li {
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.links li:hover {
+  color: #000;
+  opacity: 0.7;
+  cursor: pointer;
+}
+
+.links li:active {
+  color: blue;
+  cursor: pointer;
+}
+
+.parent {
+  display: flex;
+  gap: 20px;
+}
+
+.child {
+  display: none;
+  margin: 25px 0;
+  position: absolute;
+  border: 1px solid #000;
+  padding: 10px;
+  border-radius: 5px;
+  z-index: 3;
+}
+
+.parent:hover .child {
+  display: block;
+}

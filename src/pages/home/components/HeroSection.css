@@ -1,0 +1,13 @@
+.innerWrapper {
+  margin: 30px auto;
+  width: 90%;
+}
+
+.paddingWrapper {
+  padding: 20px 5px;
+}
+
+.pd{
+    padding: 2px 100px;
+    margin: 5px 100px 0 0;
+}

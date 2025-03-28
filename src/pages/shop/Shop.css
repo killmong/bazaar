@@ -1,0 +1,19 @@
+.pd-5 {
+    padding: 0 5px ;
+    margin: 5px 0;
+}
+
+.btn-black{
+    padding: 5px 10px;
+    background-color: black;
+    color: white;
+}
+
+.btn-white{
+    padding: 5px 10px;
+    background-color: white;
+    color: black;
+    border: 1px solid black;
+    border-radius: 8px;
+  display: flex;
+}
