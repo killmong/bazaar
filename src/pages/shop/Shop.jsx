@@ -1,16 +1,25 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState,useContext } from "react";
 import { Link } from "react-router-dom";
 import { FaLongArrowAltRight, FaLongArrowAltLeft } from "react-icons/fa";
+import {Context} from "../../context/Context";
 import "./Shop.css";
-const Shop = () => {
-  const [data, setData] = useState({ products: [] });
 
+const Shop = () => {
+
+  const { user, setUser, isLoggedIn, setIsLoggedIn } = useContext(Context);
+  console.log("Shop - User Context:", { user, isLoggedIn }); // Test log
+
+  const [data, setData] = useState({ products: [] });
   const limit = 10;
   const [skip, setSkip] = useState(0);
 
+  const [cart, setCart] = useState([]);
+
   useEffect(() => {
     const fetchData = async () => {
-      const res = await  fetch(`https://dummyjson.com/products/?skip=${skip}&limit=${limit}&`);
+      const res = await fetch(
+        `https://dummyjson.com/products/?skip=${skip}&limit=${limit}&`
+      );
       const fetchedData = await res.json();
       setData(fetchedData);
     };
@@ -18,7 +27,11 @@ const Shop = () => {
   }, [skip]);
 
   const products = data.products;
-  console.log(skip);
+
+  const addToCart = () => {
+   
+    
+  };
   return (
     <div className="innerWrapper h-screen">
       <div className="cardWrapper  flex flex-wrap justify-center gap-5">
@@ -45,13 +58,19 @@ const Shop = () => {
                   {" "}
                   $ {item.price}
                 </h3>
-                <h3 className="text-black text-center">
-                  <span className="capitalize text-black text-xl">
-                    dicounted price $
-                  </span>
-                  {item.discountPercentage}
+                <h3 className="text-black flex justify-center text-center">
+                  <span className="capitalize text-2xl text-black ">$</span>
+                  <p className="text-2xl text-lime-500">
+                    {" "}
+                    {item.discountPercentage}
+                  </p>
                 </h3>
-                <Link to="#" className=" btn-black text-center rounded-2xl">
+                <Link
+                  key={item.id}
+                  to="#"
+                  onClick={addToCart}
+                  className=" btn-black text-center rounded-2xl"
+                >
                   Add to Cart
                 </Link>
               </div>

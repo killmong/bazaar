@@ -33,7 +33,7 @@ const Category = () => {
                   <div className="hover:scale-105 w-[250px] h-[300px] b ">
                     <motion.img
                       whileHover={{
-                        scale: 1.2,
+                        scale: 0.9,
                         transition: { duration: 1 },
                       }}
                       whileTap={{ scale: 0.9 }}
@@ -53,7 +53,7 @@ const Category = () => {
                   </h3>
                   <h3 className="text-black text-center">
                     <span className="capitalize text-black text-xl">
-                      dicounted price $
+                     $
                     </span>
                     {item.discountPercentage}
                   </h3>
