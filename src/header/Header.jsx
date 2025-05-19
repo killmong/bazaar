@@ -5,68 +5,38 @@ import { CgProfile } from "react-icons/cg";
 import { MdOutlineShoppingBag } from "react-icons/md";
 import { MdKeyboardArrowDown } from "react-icons/md";
 import { BsCart2 } from "react-icons/bs";
-
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Context } from "../context/Context";
-
 const Header = () => {
-  const { user, setUser, isLoggedIn, setIsLoggedIn } = useContext(Context);
+  const {
+    setUser,
+    user,
+    isLoggedIn,
+    cart,
+    cartCount,
+    setCartCount,
+    setIsLoggedIn,
+  } = useContext(Context);
+
   const { pathname } = useLocation();
   let [searchedProducts, setSearchedProducts] = useState([]);
 
+  const navigate = useNavigate();
   const [query, setQuery] = useState("");
-  function handleSearch(e) {
-    const searchValue = e.target.value;
-    console.log(searchValue);
-    setQuery(searchValue);
-    const fetchData = async () => {
-      const response = await fetch(
-        `https://dummyjson.com/products/search?q=${query}&limit=8&skip=0`
-      );
-      const data = await response.json();
-      setSearchedProducts(data.products);
-      console.log(searchedProducts);
-    };
-    fetchData();
-  }
-
-  const category = [
-    {
-      title: "Grocery",
-      slug: "grocery",
-    },
-    {
-      title: "Beauty",
-      slug: "beauty",
-    },
-    { title: "smartphones", slug: "smartphones" },
-    {
-      title: "Home Decoration",
-      slug: "home-decoration",
-    },
-    {
-      title: "Fragrances",
-      slug: "fragrances",
-    },
-
-    {
-      title: "Furniture",
-      slug: "furniture",
-    },
-
-    {
-      title: "tops",
-      slug: "tops",
-    },
-  ];
 
   useEffect(() => {
-    fetch("https://dummyjson.com/products/categories").then((res) =>
+    fetch("http://localhost:5000/api/product/getProducts").then((res) =>
       res.json()
     );
-  }, []);
 
-  const [isHovered, setIsHovered] = useState(false);
+    const userLoggedIn = sessionStorage.getItem("isLoggedIn");
+    setIsLoggedIn(userLoggedIn);
+
+    setCartCount(() => cart.length);
+  }, [cart, setCartCount, setIsLoggedIn]);
+ 
+
+  console.log("user", user);
   return (
     <div className="wrapper sticky top-0 w-full bg-white z-50 shadow-md   ">
       <header className=" flex md:flex-row flex-col justify-between">
@@ -81,36 +51,8 @@ const Header = () => {
               <Link to="/shop">Shop</Link>
             </li>
 
-            <li className="parent ">
-              <p
-                onMouseEnter={() => setIsHovered(true)}
-                onMouseLeave={() => setIsHovered(false)}
-                className="relative  flex pd-2  "
-              >
-                Categories{" "}
-                <span
-                  onMouseEnter={() => setIsHovered(true)}
-                  onMouseLeave={() => setIsHovered(false)}
-                  className="text-xl  parent  absolute right-[-20px] bottom-1"
-                >
-                  <MdKeyboardArrowDown />
-                </span>
-              </p>
-              <div
-                onMouseEnter={() => setIsHovered(true)}
-                onMouseLeave={() => setIsHovered(false)}
-                className="   child w-[400px] pd-1 h-auto  "
-              >
-                {isHovered && (
-                  <ul className="links">
-                    {category.map((item) => (
-                      <li key={item.slug}>
-                        <Link to={`/category/${item.slug}`}>{item.title}</Link>{" "}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
+            <li>
+              <Link to="/category">Shop By Category</Link>
             </li>
 
             <li>
@@ -153,25 +95,37 @@ const Header = () => {
               </div>
             </div>
           )}
-          {pathname !== "/" && (
-            <div className="text-2xl hover:scale-110 hover:bg-blue-300">
-              <CgProfile />
-            </div>
+          {isLoggedIn && user.role === "admin" && (
+            <p
+              onClick={() => navigate("/adminDashboard")}
+              className="text-black cursor-pointer hover:scale-105 hover:text-blue-500 hover:underline"
+            >
+              Admin Dashboard
+            </p>
           )}
-
-          {/* <div className="text-2xl">
-            <MdOutlineShoppingBag />
+          <div
+            onClick={() => navigate("/profile/personaldetails")}
+            className="text-2xl hover:scale-110 hover:bg-blue-300"
+          >
+            <CgProfile />
           </div>
 
-          <div className="text-2xl relative">
-            <BsCart2 />
-            <p className="absolute top-[-10px] right-0 text-xs text-black">
-              {" "}
-              0
-            </p>
-          </div> */}
-
-          {pathname === "/" && (
+          <div className="text-2xl">
+            <MdOutlineShoppingBag />
+          </div>
+          {isLoggedIn && (
+            <div
+              onClick={() => navigate("/Cart")}
+              className="text-2xl relative"
+            >
+              <BsCart2 />
+              <p className="absolute top-[-10px] right-0 text-xs text-black">
+                {cartCount}
+                {console.log(cartCount)}
+              </p>
+            </div>
+          )}
+          {!isLoggedIn && pathname === "/" && (
             <div className="flex gap-2">
               <Link to={"/login"} className="btn btn-black">
                 Login
@@ -185,9 +139,8 @@ const Header = () => {
             </div>
           )}
 
-          {console.log("User:", user)}
-          {console.log("Is Logged In:", isLoggedIn)}
-          {pathname == "/" && (
+          {}
+          {isLoggedIn && pathname === "/" && (
             <div className="flex gap-2">
               <Link
                 to={"/login"}
@@ -201,6 +154,7 @@ const Header = () => {
               </Link>
             </div>
           )}
+          {isLoggedIn && <p className="text-3xl"> </p>}
         </div>
       </header>
     </div>

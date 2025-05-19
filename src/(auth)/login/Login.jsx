@@ -1,125 +1,100 @@
-import React, { useState, useContext } from "react";
+import React, { useContext } from "react";
+import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-toastify";
 import { Context } from "../../context/Context";
-import InputField from "../../common/components/InputField";
-
 const Login = () => {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const { user, setUser, setIsLoggedIn } =
+    useContext(Context); /* access user context */
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
+  const navigate = useNavigate();
 
-  const { user, setUser, isLoggedIn, setIsLoggedIn } = useContext(Context);
-
-  console.log("Login - User Context:", { user, isLoggedIn }); 
-
-  let navigate = useNavigate();
-  function handleusername(e) {
-    setUsername(e.target.value);
-  }
-  function handlePassword(e) {
-    setPassword(e.target.value);
-  }
-
-  const handleLogin = (e) => {
-    e.preventDefault();
-
-    fetch("https://dummyjson.com/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        username: username,
-        password: password,
-      }),
-    })
-      .then((res) => res.json())
-      .then((loginData) => {
-        setUser(loginData);
-        console.log("User Data:", loginData); // Log entire user object
-
-        if (loginData.accessToken) {
-          console.log("Access Token:", loginData.accessToken);
-
-          fetch("https://dummyjson.com/auth/me", {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${loginData.accessToken}`,
-            },
-          })
-            .then((res) => res.json())
-            .then((userData) => {
-              console.log("User Data:", userData);
-              sessionStorage.setItem("user", JSON.stringify(userData));
-              sessionStorage.setItem("isLoggedIn", true);
-
-              setUser(sessionStorage.getItem("user"));
-              setIsLoggedIn(true);
-              console.log("User Data:", userData); // Log entire user object
-              navigate("/");
-            })
-            .catch((err) => {
-              console.error("Error fetching user details:", err);
-              setIsLoggedIn(false);
-            });
-        } else {
-          setIsLoggedIn(false);
-          console.log("Login failed:", loginData);
-        }
-      })
-      .catch((err) => {
-        console.error("Login error:", err);
-        setIsLoggedIn(false);
+  const onSubmit = async (data) => {
+    console.log("Form data:", data);
+    try {
+      const res = await fetch("http://localhost:5000/api/user/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
       });
+
+      if (res.ok) {
+        const result = await res.json();
+        sessionStorage.setItem("user", JSON.stringify(result));
+        setUser(result);
+        setIsLoggedIn(true);
+        toast.success("Login successful!");
+        setTimeout(() => {
+          navigate("/");
+        }, 1000); // Redirect after 1 second
+      } else {
+        toast.error("Login failed! Please check your credentials.");
+        console.error("Login failed:", res.statusText);
+      }
+    } catch (err) {
+      console.error("Login error:", err);
+    }
   };
 
   return (
-    <div className=" h-screen w-screen  wrapper flex justify-center">
-      <div className=" flex flex-col   items-center">
-        <h2 className="text-3xl text-center font-bold text-black mb-4">
-          Welcome back <motion.span></motion.span>
+    <div className="h-screen w-screen wrapper flex justify-center items-center">
+      <div className="flex flex-col items-center">
+        <h2 className="text-3xl font-bold text-black mb-4 text-center">
+          Welcome back <motion.span />
         </h2>
 
         <form
-          onSubmit={handleLogin}
-          className=" loginWrapper flex flex-row   rounded-4xl p-5 gap-5"
+          onSubmit={handleSubmit(onSubmit)}
+          className="loginWrapper flex flex-col rounded-4xl p-5 gap-5"
         >
-          <div className="flex flex-col gap-4">
-            <InputField
-              typeText="username"
-              placeHolderText="username"
-              tag="username"
-              label="username"
-              id="username"
-              name={"username"}
-              value={username}
-              onChangeFunction={handleusername}
-              inputClass=" border-2 border-gray-300 rounded-md px-4 py-2"
-            />
-            {console.log(username)}
-            <InputField
-              typeText="password"
-              placeHolderText="Password"
-              tag="password"
-              label="Password"
-              id="password"
-              name={"password"}
-              value={password}
-              onChangeFunction={handlePassword}
-              inputClass=" border-2 border-gray-300 rounded-md px-4 py-2"
-            />
-            {console.log(password)}
+          <div className="flex flex-col gap-4 w-80">
+            <div className="flex flex-col gap-1  ">
+              <label htmlFor="username">username</label>
+              <input
+                id="username"
+                type="text"
+                placeholder="Username"
+                className="border-2 border-gray-300 peer  rounded-md shadow-md hover:shadow-blue-300 hover:shadow-md focus:shadow-blue-400 focus:outline-0 px-4 py-2"
+                {...register("username", { required: "Username is required" })}
+              />
+              {errors.username && (
+                <p className="text-red-500 text-sm">
+                  {errors.username.message}
+                </p>
+              )}
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <label htmlFor="password">Password</label>
+              <input
+                type="password"
+                id="password"
+                placeholder="Password"
+                className="border-2 border-gray-300 shadow-md hover:shadow-blue-300  focus:shadow-blue-400 rounded-md px-4 py-2 focus:outline-0 "
+                {...register("password", { required: "Password is required" })}
+              />
+              {errors.password && (
+                <p className="text-red-500 text-sm">
+                  {errors.password.message}
+                </p>
+              )}
+            </div>
+
             <button
               type="submit"
-              value="submit"
-              className="btn-black text-center rounded-2xl"
+              className="btn-black hover:scale-105 active:scale-90 text-white bg-black py-2 rounded-2xl"
             >
               Login
-            </button>{" "}
+            </button>
           </div>
         </form>
       </div>
-
-      {console.log("User:", user)}
-      {console.log("Is Logged In:", isLoggedIn)}
     </div>
   );
 };

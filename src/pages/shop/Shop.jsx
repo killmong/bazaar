@@ -1,84 +1,56 @@
-import React, { useEffect, useState,useContext } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { Link } from "react-router-dom";
 import { FaLongArrowAltRight, FaLongArrowAltLeft } from "react-icons/fa";
-import {Context} from "../../context/Context";
+import { Context } from "../../context/Context";
 import "./Shop.css";
-
+import ProductCard from "../../common/ProductCard";
 const Shop = () => {
-
-  const { user, setUser, isLoggedIn, setIsLoggedIn } = useContext(Context);
-  console.log("Shop - User Context:", { user, isLoggedIn }); // Test log
-
-  const [data, setData] = useState({ products: [] });
+  const { addToCart } = useContext(Context);
+  const [isLoading, setIsLoading] = useState(true);
+  const [data, setData] = useState([]);
   const limit = 10;
   const [skip, setSkip] = useState(0);
 
-  const [cart, setCart] = useState([]);
-
   useEffect(() => {
     const fetchData = async () => {
-      const res = await fetch(
-        `https://dummyjson.com/products/?skip=${skip}&limit=${limit}&`
-      );
+      const res = await fetch("http://localhost:5000/api/product/getProducts", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
       const fetchedData = await res.json();
       setData(fetchedData);
+      console.log(fetchedData);
+
+      setIsLoading(false);
     };
     fetchData();
   }, [skip]);
+  console.log(data);
 
-  const products = data.products;
-
-  const addToCart = () => {
-   
-    
-  };
+  if (isLoading == true) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="text-center mt-10">
+          <div class="newtons-cradle">
+            <div class="newtons-cradle__dot"></div>
+            <div class="newtons-cradle__dot"></div>
+            <div class="newtons-cradle__dot"></div>
+            <div class="newtons-cradle__dot"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="innerWrapper h-screen">
-      <div className="cardWrapper  flex flex-wrap justify-center gap-5">
-        {products.length > 0 ? (
-          products.map((item) => (
-            <div>
-              <div
-                key={item.id}
-                className=" pd-5 rounded-4xl bg-violet-400 border-0 w-[250px] h-[300px] "
-              >
-                <div className="hover:scale-105 w-[250px] h-[300px] b ">
-                  <img
-                    className="w-full h-full object-contain"
-                    src={item.images[0]}
-                    alt={item.title}
-                  />
-                </div>
-              </div>
-
-              <div className="flex flex-col pd-5 w-[250px] h-auto justify-between">
-                <h3 className="text-black text-center">{item.title}</h3>
-
-                <h3 className="text-gray-600 text-center line-through ">
-                  {" "}
-                  $ {item.price}
-                </h3>
-                <h3 className="text-black flex justify-center text-center">
-                  <span className="capitalize text-2xl text-black ">$</span>
-                  <p className="text-2xl text-lime-500">
-                    {" "}
-                    {item.discountPercentage}
-                  </p>
-                </h3>
-                <Link
-                  key={item.id}
-                  to="#"
-                  onClick={addToCart}
-                  className=" btn-black text-center rounded-2xl"
-                >
-                  Add to Cart
-                </Link>
-              </div>
-            </div>
-          ))
-        ) : (
-          <p>Loading products...</p>
-        )}
+      <div className="innerWrapper min-h-screen">
+        <div className="cardWrapper flex flex-wrap justify-center gap-5">
+          {data.map((item) => (
+            <ProductCard key={item.id} item={item} addToCart={addToCart} />
+          ))}
+        </div>
       </div>
       <div className="flex justify-center gap-5">
         <button
